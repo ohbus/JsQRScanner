@@ -159,52 +159,93 @@
     		jbScanner.appendTo(scannerParentElement);
     	}        
     }
-    
-   var x = document.getElementById("location");
-	 var options = {
-			  enableHighAccuracy: true,
-			  timeout: 5000,
-			  maximumAge: 0
-			};
+  </script>    
+	  
+	  <script type="text/javascript"> 
+ var latlong; 
+  function sendRequest(value){
+	  const form = document.createElement('form');
+		form.method = 'post';
+		form.action = '/qr/save';
+		
+		const hiddenField = document.createElement('input');
+		hiddenField.name  = 'code';
+		hiddenField.value = value;
+		
+		const hiddenField2 = document.createElement('input');
+		hiddenField2.name  = 'location';
+		hiddenField2.value = latlong;
+		
+		form.appendChild(hiddenField);
+		form.appendChild(hiddenField2);
+		
+		document.body.appendChild(form);
+		form.submit();
+	 };
 
-	 function getLocation() {
+	 window.onload = function(){
+		 
 		if (navigator.geolocation) {
 			navigator.geolocation.watchPosition(showPosition,showError,options);
 			
 		} else { 
 			x.innerHTML = "Geolocation is not supported by this browser.";
 		}
+		 
+	     var tE = document.querySelector('#scannedTextMemo'); //The readonly textarea
+
+	     //Redefine the value property for the textarea
+	     tE._value = tE.value;
+	     Object.defineProperty(tE, 'value', {
+	         get: function(){return this._value},
+	         set: function(v){
+	             console.log(this.id, ' - the value changed to: ' + v)
+	             this._value = v;
+	             this.setAttribute('value', v) //Setting the attribute (browser stuff);
+	             
+	         }
+	     })
 	 }
+	 
+	 var x = document.getElementById("location");
+	 var options = {
+			  enableHighAccuracy: true,
+			  timeout: 5000,
+			  maximumAge: 0
+			};
 	     
 	 function showPosition(position) {
 		 console.log(position);
-		  var latlon = position.coords.latitude + ", " + position.coords.longitude;
+		  var latlon = position.coords.latitude + ',' + position.coords.longitude + ','+ position.coords.accuracy+','+ position.timestamp;
 		  console.log(latlon);
+		  latlong=latlon;
+		  console.log(latlong);
+		  // var img_url = "https://maps.googleapis.com/maps/api/staticmap?center="+latlon+"&zoom=14&size=400x300&sensor=false&key=YOUR_KEY"; 
 
-		  var img_url = "https://maps.googleapis.com/maps/api/staticmap?center="+latlon+"&zoom=14&size=400x300&sensor=false&key=YOUR_KEY";
-
-		  document.getElementById("mapholder").innerHTML = "<img src='"+img_url+"'>";
-	     console.log(position.coords.latitude);
+		 // document.getElementById("mapholder").innerHTML = "<img src='"+img_url+"'>";
+	    /*  console.log(position.coords.latitude);
 	     console.log(position.coords.longitude);
-	     console.log(position.coords.accuracy);
+	     console.log(position.coords.accuracy); */
 	 }
 	 
 	 function showError(error) {
 		  switch(error.code) {
 		    case error.PERMISSION_DENIED:
-		      x.innerHTML = "User denied the request for Geolocation."
+		      console.log("User denied the request for Geolocation.");
 		      break;
 		    case error.POSITION_UNAVAILABLE:
-		      x.innerHTML = "Location information is unavailable."
+		      console.log("Location information is unavailable.");
 		      break;
 		    case error.TIMEOUT:
-		      x.innerHTML = "The request to get user location timed out."
+		      console.log("The request to get user location timed out.");
 		      break;
 		    case error.UNKNOWN_ERROR:
-		      x.innerHTML = "An unknown error occurred."
+		      console.log("An unknown error occurred.");
 		      break;
 		}
 	}
-  </script>    
+  </script>  
+
+	  
   </body>
 </html>
